@@ -1,29 +1,58 @@
+import { useEffect } from 'react';
 import { PhotographerCard } from './PhotographerCard';
 import { PhotographerForm } from './PhotographerForm';
-import { usePhotographerReducer } from './usePhotographerReducer';
+import { usePhotographerReducer } from './UsePhotographerReducer';
+import { useLoading } from '../../context/LoadingContext';
+import { api } from '../../services/api';
 import './PhotographerDetails.css';
 
 function PhotographerComponent() {
     const { state, dispatch } = usePhotographerReducer();
+    const { setLoading } = useLoading();
 
-    const handleSave = () => {
-        if (state.editingId) {
-            dispatch({ type: 'UPDATE_PHOTOGRAPHER', id: state.editingId, photographer: state.formData });
-            alert('Photographer updated successfully!');
-        } else {
-            const newId = `P${Object.keys(state.photographers).length + 1}`;
-            dispatch({ type: 'ADD_PHOTOGRAPHER', id: newId, photographer: state.formData });
-            alert('New photographer added successfully!');
+    useEffect(() => {
+        const loadPhotographers = async () => {
+            setLoading(true);
+            await api.getPhotographers(dispatch);
+
+            setLoading(false);
+        };
+        loadPhotographers();
+    }, []);
+
+    const handleSave = async () => {
+        setLoading(true);
+        try {
+            if (state.editingId) {
+                await api.updatePhotographer(state.editingId, state.formData, dispatch);
+                alert('Photographer updated successfully!');
+            } else {
+                await api.addPhotographer(state.formData, dispatch);
+                alert('New photographer added successfully!');
+            }
+        } catch (error) {
+            console.error('Failed to save photographer:', error);
+            alert('Failed to save photographer');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleCancel = () => dispatch({ type: 'CLOSE_DIALOG' });
     
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         const photographer = state.photographers[id];
         if (confirm(`Are you sure you want to delete ${photographer.name}?`)) {
-            dispatch({ type: 'DELETE_PHOTOGRAPHER', id });
-            alert('Photographer deleted successfully!');
+            setLoading(true);
+            try {
+                await api.deletePhotographer(id, dispatch);
+                alert('Photographer deleted successfully!');
+            } catch (error) {
+                console.error('Failed to delete photographer:', error);
+                alert('Failed to delete photographer');
+            } finally {
+                setLoading(false);
+            }
         }
     };
     

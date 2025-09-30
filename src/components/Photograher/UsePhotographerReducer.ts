@@ -1,6 +1,5 @@
 import { useReducer } from "react";
 import type { Photographer, Photographers } from '../Common/data';
-import { initialPhotographers } from '../Common/data';
 
 export type State = {
     photographers: Photographers;
@@ -8,6 +7,7 @@ export type State = {
     formData: Photographer;
     editingId: string | null;
     errors: { [key: string]: string };
+    loading: boolean;
 };
 
 export type Action = 
@@ -18,16 +18,19 @@ export type Action =
     | { type: 'ADD_PHOTOGRAPHER'; id: string; photographer: Photographer }
     | { type: 'UPDATE_PHOTOGRAPHER'; id: string; photographer: Photographer }
     | { type: 'DELETE_PHOTOGRAPHER'; id: string }
-    | { type: 'SET_ERRORS'; errors: { [key: string]: string } };
+    | { type: 'SET_ERRORS'; errors: { [key: string]: string } }
+    | { type: 'SET_LOADING'; loading: boolean }
+    | { type: 'SET_PHOTOGRAPHERS'; photographers: Photographers };
 
 const emptyForm: Photographer = { name: "", level: "", email: "", phone: "" };
 
 const initialState: State = {
-    photographers: initialPhotographers,
+    photographers: {},
     showDialog: false,
     formData: emptyForm,
     editingId: null,
-    errors: {}
+    errors: {},
+    loading: false
 };
 
 function photographerReducer(state: State, action: Action): State {
@@ -49,6 +52,10 @@ function photographerReducer(state: State, action: Action): State {
         case 'DELETE_PHOTOGRAPHER':
             const { [action.id]: deleted, ...remaining } = state.photographers;
             return { ...state, photographers: remaining };
+        case 'SET_LOADING':
+            return { ...state, loading: action.loading };
+        case 'SET_PHOTOGRAPHERS':
+            return { ...state, photographers: action.photographers };
         default:
             return state;
     }

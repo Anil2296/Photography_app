@@ -1,20 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PhotographerComponent from "../Photograher/photographerDetails";
 import ShootDetails from "../Shoot/Shootdetails";
 import Cameradetails from "../Camera/Cameradetails";
+import { useLoading } from '../../context/LoadingContext';
 import "./MainPage.css";
 
 function MainPage() {
     const [activeTab, setActiveTab] = useState("MainPage");
+    const { setLoading } = useLoading();
+
+    useEffect(() => {
+        setLoading(true);
+        setTimeout(() => setLoading(false), 800);
+    }, []);
+
+    const handleTabChange = (tab: string) => {
+        setLoading(true);
+        setActiveTab(tab);
+        setTimeout(() => setLoading(false), 600);
+    };
 
     return (
         <div className="main-container">
             <nav className="nav">
                 <div className="nav-buttons">
-                    <button onClick={() => setActiveTab("MainPage")}>Home</button>
-                    <button onClick={() => setActiveTab("photographers")}>Photographers</button>
-                    <button onClick={() => setActiveTab("shoots")}>Shoot Details</button>
-                    <button onClick={() => setActiveTab("cameradetails")}>Camera Details</button>
+                    <button onClick={() => handleTabChange("MainPage")}>Home</button>
+                    <button onClick={() => handleTabChange("photographers")}>Photographers</button>
+                    <button onClick={() => handleTabChange("shoots")}>Shoot Details</button>
+                    <button onClick={() => handleTabChange("cameradetails")}>Camera Details</button>
                 </div>
                 <div className="contact-info">
                     <p>📞 +91 6302711927</p>
