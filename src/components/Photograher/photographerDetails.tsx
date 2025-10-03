@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
 import { PhotographerCard } from './PhotographerCard';
 import { PhotographerForm } from './PhotographerForm';
-import { usePhotographerReducer } from './UsePhotographerReducer';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { openAddDialog, openEditDialog, closeDialog, updateForm } from '../../store/photographerSlice';
 import { useLoading } from '../../context/LoadingContext';
 import { api } from '../../services/api';
 import './PhotographerDetails.css';
 
 function PhotographerComponent() {
-    const { state, dispatch } = usePhotographerReducer();
+    const state = useAppSelector((state) => state.photographer);
+    const dispatch = useAppDispatch();
     const { setLoading } = useLoading();
 
     useEffect(() => {
@@ -38,7 +40,7 @@ function PhotographerComponent() {
         }
     };
 
-    const handleCancel = () => dispatch({ type: 'CLOSE_DIALOG' });
+    const handleCancel = () => dispatch(closeDialog());
     
     const handleDelete = async (id: string) => {
         const photographer = state.photographers[id];
@@ -56,18 +58,18 @@ function PhotographerComponent() {
         }
     };
     
-    const handleEdit = (id: string) => dispatch({ type: 'OPEN_EDIT_DIALOG', id, photographer: state.photographers[id] });
+    const handleEdit = (id: string) => dispatch(openEditDialog({ id, photographer: state.photographers[id] }));
 
     return (
         <div>
-            <button id="new-Photographer" onClick={() => dispatch({ type: 'OPEN_ADD_DIALOG' })}>Add New Photographer</button>
+            <button id="new-Photographer" onClick={() => dispatch(openAddDialog())}>Add New Photographer</button>
             
             <PhotographerForm
                 isOpen={state.showDialog}
                 formData={state.formData}
                 editingId={state.editingId}
                 errors={state.errors}
-                onFormDataChange={(formData) => dispatch({ type: 'UPDATE_FORM', formData })}
+                onFormDataChange={(formData) => dispatch(updateForm(formData))}
                 onSave={handleSave}
                 onCancel={handleCancel}
             />
